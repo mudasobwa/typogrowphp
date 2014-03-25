@@ -1,0 +1,170 @@
+sequence :
+  punctuation :
+    re : '(''|"|\))\s*([.,!?]+)'
+    default :
+      - '${2}${1}'
+    ru :
+      - '${1}${2}'
+
+quotes :
+  # That's a 6.3" man, he sees sunsets at 10°20'30" E.
+  #             ⇑
+  inch :
+    pattern : '"'
+    re : '(?:\p{Mc}[\.,\p{N}]+)(")(?=\p{Mc}|\Z)'
+    default :
+      - '″'
+  # That's a 6.3" man, he sees sunsets at 10°20'30" E.
+  #                                               ⇑
+  seconds :
+    pattern : '"'
+    re : '(?:\p{Mc}[°''’′\p{N}]+)(")(?=\p{Mc}|\p{L}|\Z)'
+    default :
+      - '″'
+
+  # That's a 6.3" man, he sees sunsets at 10°20'30" E.
+  #                                            ⇑
+  minutes :
+    pattern : ''''
+    re : '(\p{Mc}[°\p{N}]+)('')(?=\p{Mc}|\p{L}|\Z)'
+    default :
+      - '′'
+
+  # That's a 6.3" man, he sees sunsets at 10°20'30" E.
+  #     ⇑
+  apostrophe_pre :
+    pattern : ''''
+    re : '(?<=\p{L})('')(?=\p{L})'
+    default :
+      - '♻'
+  # And God said 'Foos' game is over'.
+  #                  ⇑
+  apostrophe_squeez :
+    pattern : ''''
+    re : '(?<=s)('')(?=\s)'
+    default :
+      - '♻'
+  # And God said "∇×(∇×F) = ∇(∇·F) − ∇2F" and there was light.
+  #              ⇑
+  left :
+    original : '''"'
+    re : '(?<=\s)("|'')'
+    compliant : 'right'
+    # Nested quotation marks are chosen if it’s an even occurence
+    default :
+      - '“'
+      - '‘'
+#      - '〈'
+    ru :
+      - '«'
+      - '„'
+    us :
+      - '‘'
+      - '“'
+  # And God said "∇×(∇×F) = ∇(∇·F) − ∇2F" and there was light.
+  #                                     ⇑
+  right :
+    slave : true
+    original : '''"'
+    re : '(?<=\p{L}|\p{M}|\p{P})("|'')(?=\s|\p{P}|\Z)'
+    compliant : 'left'
+    # Nested quotation marks are chosen if it’s an odd occurence
+    default :
+      - '”'
+      - '’'
+#      - '〉'
+    ru :
+      - '»'
+      - '“'
+    us :
+      - '’'
+      - '”'
+  # That's a 6.3" man, he sees sunsets at 10°20'30" E.
+  #     ⇑
+  apostrophe_post :
+    pattern : '♻'
+    re : '♻'
+    default :
+      - '’'
+
+  quotes_single :
+    re : '\s+''\s+(.+?)\s+''\s+'
+    default :
+      - ' ‘\1’ '
+    ru :
+      - ' «\1» '
+  quotes_double :
+    re : '\s+"\s+(.+?)\s+"\s+'
+    default :
+      - ' “\1” '
+    ru :
+      - ' «\1» '
+
+  alone_single :
+    re : '('')'
+    alert: true
+    default :
+      - '’'
+
+  alone_double :
+    re : '(")'
+    alert: true
+    default :
+      - '”'
+
+punctuation :
+  bloody_quote_en :
+    re : '(“)(?:\s+)'
+    default :
+      - '\1'
+    ru :
+      - '\1 '
+  bloody_quote_ru :
+    re : '(?:\s+)(“)'
+    default :
+      - ' \1'
+    ru :
+      - '\1'
+  opening_orphan :
+    re : '([(¿¡§#№‘„«])(?:\s+)'
+    default :
+      - '\1'
+  closing_orphan :
+    re : '(?:\s+)([.,:;!?)”’»])'
+    default :
+      - '\1'
+  closing_clamped :
+    re : '([.,:;!?)])(?=\p{Lu})'
+    default :
+      - '\1 '
+  fixup :
+    re : '([!?.]+)(?:\s*)(\.+)'
+    default :
+      - '\1\2'
+  ellipsis :
+    re : '\.{3,}'
+    default :
+      - '…'
+  mdash :
+    re : '\s*(\s-\s|--|–|—)\s*'
+    default :
+      - '—'
+    ru :
+      - ' — '
+    us :
+      - ' – '
+
+# MUST be the last section, since it’ kinda cleanup
+orphans :
+  dangling_right :
+    re : '(?<=\s|\A)(\p{L})\s+'
+    default :
+      - '\1 '
+  dangling_left :
+    re : '\s+(p{P})(?=\s|\Z)'
+    default :
+      - ' \1'
+  extra_spaces :
+    re : '\p{Mc}+'
+    default :
+      - ' '
