@@ -80,6 +80,9 @@ class FeatureContext extends BehatContext {
     $this->input = $input;
   }
 
+  /**
+   * @When /^input string is processed with Typogrowl’s typography parser with lang "([^"]*)"$/
+   */  
   public function inputStringIsProcessedWithTypogrowlSTypographyParserWithLang($lang) {
     $this->parsed = \Mudasobwa\Typogrowth\Parser::parse($this->input, $lang);
   }
@@ -116,7 +119,7 @@ class FeatureContext extends BehatContext {
    * @When /^input string language is determined$/
    */
   public function inputStringLanguageIsDetermined() {
-    $this->lang = (new \Mudasobwa\Typogrowth\Parser)->is_ru($this->input) ? 'ru' : 'us';
+    $this->lang = (new \Mudasobwa\Typogrowth\Parser)->suggest_lang($this->input);
   }
 
   /**
@@ -134,7 +137,7 @@ class FeatureContext extends BehatContext {
    * @When /^input string is processed with Typogrowl’s typography parser with section "([^"]*)"$/
    */
   public function inputStringIsProcessedWithTypogrowlSTypographyParserWithSection($section) {
-    $this->parsed = \Mudasobwa\Typogrowth\Parser::parse($this->input, 'default', array($section));
+    $this->parsed = \Mudasobwa\Typogrowth\Parser::parse($this->input, null, array($section));
   }
 
   /**

@@ -7,18 +7,32 @@ sequence :
       - '${1}${2}'
 
 quotes :
+  siblings_single :
+    re : "^([^']*)'([^']*)'([^']*)$"
+    default :
+      - '\1 ‘\2’ \3'
+    ru :
+      - '\1 «\2» \3'
+    
+  siblings_double :
+    re : '^([^"]*)"([^"]*)"([^"]*)$'
+    default :
+      - '\1 “\2” \3'
+    ru :
+      - '\1 «\2» \3'
+    
   # That's a 6.3" man, he sees sunsets at 10°20'30" E.
   #             ⇑
   inch :
     pattern : '"'
-    re : '(?:\p{Mc}[\.,\p{N}]+)(")(?=\p{Mc}|\Z)'
+    re : '(?:\s[\.,\p{N}]+)(")(?=\s|\Z)'
     default :
       - '″'
   # That's a 6.3" man, he sees sunsets at 10°20'30" E.
   #                                               ⇑
   seconds :
     pattern : '"'
-    re : '(?:\p{Mc}[°''’′\p{N}]+)(")(?=\p{Mc}|\p{L}|\Z)'
+    re : '(?:\s[°''’′\p{N}]+)(")(?=\s|\p{L}|\Z)'
     default :
       - '″'
 
@@ -26,7 +40,7 @@ quotes :
   #                                            ⇑
   minutes :
     pattern : ''''
-    re : '(\p{Mc}[°\p{N}]+)('')(?=\p{Mc}|\p{L}|\Z)'
+    re : '(\s[°\p{N}]+)('')(?=\s|N|E|\d|\Z)'
     default :
       - '′'
 
@@ -47,7 +61,7 @@ quotes :
   # And God said "∇×(∇×F) = ∇(∇·F) − ∇2F" and there was light.
   #              ⇑
   left :
-    original : '''"'
+    original : '[''"]'
     re : '(?<=\s)("|'')'
     compliant : 'right'
     # Nested quotation marks are chosen if it’s an even occurence
@@ -65,7 +79,7 @@ quotes :
   #                                     ⇑
   right :
     slave : true
-    original : '''"'
+    original : '[''"]'
     re : '(?<=\p{L}|\p{M}|\p{P})("|'')(?=\s|\p{P}|\Z)'
     compliant : 'left'
     # Nested quotation marks are chosen if it’s an odd occurence
@@ -157,14 +171,10 @@ punctuation :
 # MUST be the last section, since it’ kinda cleanup
 orphans :
   dangling_right :
-    re : '(?<=\s|\A)(\p{L})\s+'
+    re : '(?<=\p{Z}|\s)(\p{L})\s+'
     default :
       - '\1 '
   dangling_left :
-    re : '\s+(p{P})(?=\s|\Z)'
+    re : '\s+(p{P})(?=\s)'
     default :
       - ' \1'
-  extra_spaces :
-    re : '\p{Mc}+'
-    default :
-      - ' '

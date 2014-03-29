@@ -42,10 +42,10 @@ class Parser {
   }
   
   private function str_to_re($str) {
-    return '/' . $str . '/imu';
+    return '/' . $str . '/mu';
   }
   
-  public function is_ru($str, $shadows = array()) {
+  private function is_ru($str, $shadows = array()) {
     $clean = $str;
     foreach ($this->merge_shadows($shadows) as $shadow) {
       $clean = preg_replace($shadow, '', $clean);
@@ -53,9 +53,14 @@ class Parser {
     return (preg_match_all('/[А-Яа-я]/eum', $clean) > mb_strlen($clean) / 3);
   }
   
-  public function __parse($str, $lang = 'default', $sections = null, $shadows = array()) {
+  public function suggest_lang($str, $shadows = array()) {
+    return $this->is_ru($str, $shadows) ? 'ru' : 'default';
+  }
+  
+  public function __parse($str, $lang = null, $sections = null, $shadows = array()) {
     $delims = Parser::safe_delimiters($str);
     $shadows = $this->merge_shadows($shadows);
+    if (!$lang) { $lang = $this->suggest_lang($str, $shadows); }
     $needed_rules = array();
     if (!$sections) {
       $sections = \array_keys($this->rules);
@@ -77,7 +82,6 @@ class Parser {
       }
       while ($rules = array_pop($needed_rules)) {
         foreach ($rules as $rule) {
-          if (!$rule) { continue; }
           if (!array_key_exists($lang, $rule)) {
             $rule[$lang] = $rule['default'];
             if (!$rule[$lang]) {
@@ -93,25 +97,29 @@ class Parser {
                       }, $para
                     ) :
                     preg_replace($rulere, $rule[$lang][0], $para);
+          $prev = '';
           if (sizeof($rule[$lang]) > 1) {
             $para = preg_replace_callback(
                     '/(.*?)('.$rule[$lang][0].')/mu',
-                    function ($matches) use ($rules, $rule, $lang) {
-                      $prev = $matches[1];
+                    function ($matches) use ($rules, $rule, $lang, &$prev) {
+                      $prev .= $matches[1];
                       $obsoletes = preg_match_all($this->str_to_re(join('|', $rule[$lang])), $prev);
-                      $compliants = array_key_exists($lang, $rules[$rule['compliant']]) ?
+                      if (array_key_exists('compliant', $rule)) {
+                        $compliants = array_key_exists($lang, $rules[$rule['compliant']]) ?
                               $rules[$rule['compliant']][$lang] :
                               $rules[$rule['compliant']]['default'];
-                      if ($rule['compliant']) {
                         $obsoletes -= preg_match_all($this->str_to_re(join('|', $compliants)), $prev);
                       }
+                      $before = preg_match_all($this->str_to_re($rule['original']), $prev);
                       if (array_key_exists('slave', $rule)) {
-                        $obsoletes -= preg_match_all($this->str_to_re($rule['original']), $prev) + 1;
+                        $obsoletes -= $before + 1;
                       } else {
-                        $obsoletes += preg_match_all($this->str_to_re($rule['original']), $prev);
+                        $obsoletes += $before;
                       }
 
-                      return $prev . $rule[$lang][($obsoletes + 2*sizeof($rule[$lang])) % sizeof($rule[$lang])];
+                      $subst = $rule[$lang][($obsoletes + (abs($obsoletes))*sizeof($rule[$lang])) % sizeof($rule[$lang])];
+                      $prev .= $subst;
+                      return $matches[1] . $subst;
                     },
                     $para
             );
@@ -119,6 +127,7 @@ class Parser {
         }
       }
       
+      $para = preg_replace('/[ ]{2,}/mu', ' ', $para);
       $paras[] = preg_replace_callback(
               '/' . $delims[0] . '(.*?)' . $delims[1] . '/mu', 
               function ($matches) {
@@ -143,19 +152,4 @@ class Parser {
   public static function parse($str, $lang = 'default', $sections = null, $shadows = array()) {
     return (new Parser)->__parse($str, $lang, $sections, $shadows);
   }
-}
-
-
-$q = new Parser;
-print_r($q->__parse(<<<EOT
-First "string" goes here.
-Second 'string' is here.
-        
-Third -- string.
-EOT
-, 'ru'));
-
-
-foreach (array_keys($q->rules) as $key) {
-  echo "KEY: " . $key . "\n";
 }

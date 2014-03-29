@@ -10,12 +10,12 @@ Feature: Text is to be typographed (spacing and pubctuation are to be sanitized)
 
     Examples:
         | input                          | output                             |
-        | "And God said '∇×(∇×F) = ∇(∇·F) − ∇2F' and there was light." | "And God said “∇×(∇×F) = ∇(∇·F) − ∇2F” and there was light." |
+        | "And God said '∇×(∇×F) = ∇(∇·F) − ∇2F' and there was light." | "And God said ‘∇×(∇×F) = ∇(∇·F) − ∇2F’ and there was light." |
         | "And God said 'I--heard 'Booh 'Bah' Booh' and 'Bam' in heaven' and there was light." | "And God said “I—heard ‘Booh “Bah” Booh’ and ‘Bam’ in heaven” and there was light." |
         | "And God said 'I - heard 'Booh Bah Booh' and 'Bam' in heaven' and there was light." | "And God said “I—heard ‘Booh Bah Booh’ and ‘Bam’ in heaven” and there was light." |
-        | "And God said 'Oslo coordinates are: 59°57′N 10°45′E' and there was light." | "And God said “Oslo coordinates are: 59°57′N 10°45′E” and there was light." |
-        | "And God said 'That's a 6.3' man, he sees sunsets at 10°20'30' E.' and there was light." | "And God said “That’s a 6.3″ man, he sees sunsets at 10°20′30″ E.” and there was light." |
-        | "And God said 'Foo' , and there was light." | "And God said “Foo,” and there was light." |
+        | "And God said 'Oslo coordinates are: 59°57′N 10°45′E' and there was light." | "And God said ‘Oslo coordinates are: 59°57′N 10°45′E’ and there was light." |
+        | "And God said 'That's a 6.3″ man, he sees sunsets at 10°20'30″ E.' and there was light." | "And God said “That’s a 6.3″ man, he sees sunsets at 10°20′30″ E.” and there was light." |
+        | "And God said 'Foo' , and there was light." | "And God said ‘Foo,’ and there was light." |
         | "And God said 'Baz heard 'Foos' Bar' once' , and there was light." | "And God said “Baz heard ‘Foos’ Bar’ once,” and there was light." |
         | "And God, loving ellipsis, said.... And..." | "And God, loving ellipsis, said… And…" |
 
@@ -28,8 +28,8 @@ Feature: Text is to be typographed (spacing and pubctuation are to be sanitized)
 
     Examples:
         | input                          | output                             |
-        | "И Бог сказал: 'Я - слышу 'Бум' и 'Бам' где-то там' , и стало светло." | "И Бог сказал: «Я — слышу „Бум“ и „Бам“ где-то там», и стало светло." |
-        | "И Бог сказал: 'Я - слышу 'Бум 'и' Бам' где-то там' , и стало светло." | "И Бог сказал: «Я — слышу „Бум «и» Бам“ где-то там», и стало светло." |
+        | "И Бог сказал: 'Я - слышу 'Бум' и 'Бам' где-то там' , и стало светло." | "И Бог сказал: «Я — слышу „Бум“ и „Бам“ где-то там», и стало светло." |
+        | "И Бог сказал: 'Я - слышу 'Бум 'и' Бам' где-то там' , и стало светло." | "И Бог сказал: «Я — слышу „Бум «и» Бам“ где-то там», и стало светло." |
         | "Строка со ссылкой: http://wikipedia.org (ссылка)." | "Строка со ссылкой: http://wikipedia.org (ссылка)." |
 
   Scenario Outline: Spacing before/after punctuation
@@ -49,14 +49,8 @@ Feature: Text is to be typographed (spacing and pubctuation are to be sanitized)
         | "Here is exclamation ellipsis! . ."    | "Here is exclamation ellipsis!.."     |
         | "Here we go ; semicolon .. ."          | "Here we go; semicolon…"              |
         | "Here are ' english ' quotes . ."      | "Here are ‘english’ quotes.."         |
-        | "Here are " english " quotes . ."      | "Here are “english” quotes.."         |
         | "Here we go : colon . ."               | "Here we go: colon.."                 |
         | "Here are ( brackets )  parenthesis."  | "Here are (brackets) parenthesis."    |
-
-  Scenario: Inplace string modification
-    Given the input string is "Foo 'Bar' Baz"
-    When input string is modified inplace with typo!
-    Then typoed result should equal to "Foo “Bar” Baz"
 
   Scenario Outline: Orphans handling
     Given the input string is <input>
@@ -76,7 +70,7 @@ Feature: Text is to be typographed (spacing and pubctuation are to be sanitized)
 
     Examples:
         | input                                  | output                                |
-        | "<p><img src="http://mudasobwa.ru/i/self.jpg">Here: http://wikipedia.ru</p>" | "<p><img src="http://mudasobwa.ru/i/self.jpg">Here: http://wikipedia.ru</p>" |
+        | "<p><img src='http://mudasobwa.ru/i/self.jpg'>Here: http://wikipedia.ru</p>" | "<p><img src='http://mudasobwa.ru/i/self.jpg'>Here: http://wikipedia.ru</p>" |
         | "<p>http://mudasobwa.ru/i/self.jpg With caption<br/> <small><a href='http://wikipedia.ru'>Wiki</a></small> </p>" | "<p>http://mudasobwa.ru/i/self.jpg With caption<br/> <small><a href='http://wikipedia.ru'>Wiki</a></small> </p>" |
 
   Scenario Outline: Language recognition
@@ -86,8 +80,8 @@ Feature: Text is to be typographed (spacing and pubctuation are to be sanitized)
 
     Examples:
         | input                                  | output                                |
-        | "<p><img src="http://mudasobwa.ru/i/self.jpg">Here: http://wikipedia.ru</p>" | "us" |
-        | "<p><img src="http://mudasobwa.ru/i/self.jpg">Здесь: http://wikipedia.ru</p>" | "ru" |
+        | "<p><img src='http://mudasobwa.ru/i/self.jpg'>Here: http://wikipedia.ru</p>" | "default" |
+        | "<p><img src='http://mudasobwa.ru/i/self.jpg'>Здесь: http://wikipedia.ru</p>" | "ru" |
 
   Scenario Outline: Language punctuation
     Given the input string is <input>
@@ -106,7 +100,7 @@ Feature: Text is to be typographed (spacing and pubctuation are to be sanitized)
 
     Examples:
         | input                         | output                            |
-        | "Here 'you' - go."            | "Here “you” - go."                |
+        | "Here 'you' - go."            | "Here ‘you’ - go."                |
         | "Тут 'русский' --- язык."     | "Тут «русский» --- язык."         |
 
   Scenario Outline: Predefined shadows
