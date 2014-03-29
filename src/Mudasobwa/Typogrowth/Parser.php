@@ -37,22 +37,6 @@ class Parser {
     }
   }
 
-  private function merge_shadows($shadows) {
-    return array_unique(array_merge($shadows, $this->shadows));;
-  }
-  
-  private function str_to_re($str) {
-    return '/' . $str . '/mu';
-  }
-  
-  private function is_ru($str, $shadows = array()) {
-    $clean = $str;
-    foreach ($this->merge_shadows($shadows) as $shadow) {
-      $clean = preg_replace($shadow, '', $clean);
-    }
-    return (preg_match_all('/[А-Яа-я]/eum', $clean) > mb_strlen($clean) / 3);
-  }
-  
   public function suggest_lang($str, $shadows = array()) {
     return $this->is_ru($str, $shadows) ? 'ru' : 'default';
   }
@@ -152,4 +136,23 @@ class Parser {
   public static function parse($str, $lang = 'default', $sections = null, $shadows = array()) {
     return (new Parser)->__parse($str, $lang, $sections, $shadows);
   }
+  
+  /** ============================ PRIVATE ==================================*/
+  
+  private function merge_shadows($shadows) {
+    return array_unique(array_merge($shadows, $this->shadows));;
+  }
+  
+  private function str_to_re($str) {
+    return '/' . $str . '/mu';
+  }
+  
+  private function is_ru($str, $shadows = array()) {
+    $clean = $str;
+    foreach ($this->merge_shadows($shadows) as $shadow) {
+      $clean = preg_replace($shadow, '', $clean);
+    }
+    return (preg_match_all('/[А-Яа-я]/eum', $clean) > mb_strlen($clean) / 3);
+  }
+    
 }
