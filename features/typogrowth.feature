@@ -131,3 +131,16 @@ Feature: Text is to be typographed (spacing and pubctuation are to be sanitized)
 
     http://www.youtube.com/watch?v=KFKxlYNfT_o
     """
+
+  Scenario Outline: Time, date, other exceptions
+    Given the input string is <input>
+    When input string is processed with Typogrowl’s typography parser
+    Then the typoed result should equal to <output>
+
+    Examples:
+        | input                         | output                            |
+        | "Now is 6:00PM."              | "Now is 6:00PM."                  |
+        | "Now is 6:00 PM."             | "Now is 6:00 PM."                 |
+        | "Now is 16:00."               | "Now is 16:00."                   |
+        | "Now is 16:00 in evening."    | "Now is 16:00 in evening."        |
+
